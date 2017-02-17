@@ -24,6 +24,8 @@ const ArtistSchema = new Schema({
   albums: [AlbumSchema],
 });
 
+ArtistSchema.index({ name: "text" });
+
 const Artist = mongoose.model('artist', ArtistSchema);
 
 module.exports = Artist;

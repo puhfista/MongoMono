@@ -13,7 +13,7 @@ const buildQuery = (criteria) => {
   }
 
   if (criteria.name) {
-    criteriaCompiled.name = { '$regex': criteria.name, $options: "i" };
+    criteriaCompiled.$text = { $search: criteria.name };
   }
 
   return criteriaCompiled;
