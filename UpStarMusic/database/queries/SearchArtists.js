@@ -1,5 +1,24 @@
 const Artist = require('../models/artist');
 
+const buildQuery = (criteria) => {
+  const criteriaCompiled = {};
+  console.log(criteria);
+
+  if (criteria.age) {
+    criteriaCompiled.age = { $lte: criteria.age.max, $gte: criteria.age.min };
+  }
+
+  if (criteria.yearsActive) {
+    criteriaCompiled.yearsActive = { $lte: criteria.yearsActive.max, $gte: criteria.yearsActive.min };
+  }
+
+  if (criteria.name) {
+    criteriaCompiled.name = { '$regex': criteria.name, $options: "i" };
+  }
+
+  return criteriaCompiled;
+}
+
 /**
  * Searches through the Artist collection
  * @param {object} criteria An object with a name, age, and yearsActive
@@ -9,4 +28,22 @@ const Artist = require('../models/artist');
  * @return {promise} A promise that resolves with the artists, count, offset, and limit
  */
 module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
+  const sort = {};
+  sort[sortProperty] = 1;
+
+  const query = Artist
+    .find(buildQuery(criteria))
+    .sort(sort)
+    .skip(offset)
+    .limit(limit);
+
+  return Promise.all([query, Artist.count()])
+    .then(results => {
+      return {
+        all: results[0],
+        count: results[1],
+        offset,
+        limit,
+      }
+    });
 };
